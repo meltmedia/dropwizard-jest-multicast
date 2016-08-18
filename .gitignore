@@ -1,3 +1,6 @@
 # Exclude intellij files
 .idea
 *.iml
+
+# Exclude maven output directory
+target/
