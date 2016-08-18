@@ -22,6 +22,12 @@ public class MulticastClient {
         this.nonCriticalClients = new ArrayList<JestClient>();
     }
 
+    public MulticastClient(String... urls) {
+        this.criticalClients = new ArrayList<JestClient>();
+        this.nonCriticalClients = new ArrayList<JestClient>();
+        this.addCriticalDatabase(urls);
+    }
+
     private void addClient(String url, ArrayList<JestClient> clients) {
         HttpClientConfig config = new HttpClientConfig.Builder(url)
                 .multiThreaded(true)
