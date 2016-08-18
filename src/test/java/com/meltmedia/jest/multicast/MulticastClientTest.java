@@ -22,9 +22,6 @@ public class MulticastClientTest {
     @Rule
     public WireMockRule esMock1 = new WireMockRule(8081);
 
-    @Rule
-    public WireMockRule esMock2 = new WireMockRule(8082);
-
     private MulticastClient client;
 
     @Before
