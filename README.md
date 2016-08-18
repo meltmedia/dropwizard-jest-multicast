@@ -32,6 +32,7 @@ This library supports the following operations:
  
 To use any of these functions, simply build the request and pass it to the `execute` function like you would normally do
 using Jest.   
+
 **example using elasticsearch QueryBuilder:**
 ```java
 SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
