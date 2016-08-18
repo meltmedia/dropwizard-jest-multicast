@@ -1,4 +1,4 @@
-package com.meltmedia;
+package com.meltmedia.jest.multicast;
 
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
@@ -13,11 +13,11 @@ import java.util.ArrayList;
  * Created by qthibeault on 8/18/16.
  */
 
-public class Client {
+public class MulticastClient {
     private ArrayList<JestClient> criticalClients;
     private ArrayList<JestClient> nonCriticalClients;
 
-    public Client() {
+    public MulticastClient() {
         this.criticalClients = new ArrayList<JestClient>();
         this.nonCriticalClients = new ArrayList<JestClient>();
     }
@@ -55,14 +55,14 @@ public class Client {
         return client;
     }
 
-    public Client addCriticalDatabase(String... urls) {
+    public MulticastClient addCriticalDatabase(String... urls) {
         for(String url : urls) {
             this.addClient(url, criticalClients);
         }
         return this;
     }
 
-    public Client addNonCriticalDatabase(String... urls) {
+    public MulticastClient addNonCriticalDatabase(String... urls) {
         for(String url: urls) {
             this.addClient(url, nonCriticalClients);
         }
