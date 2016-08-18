@@ -15,7 +15,8 @@ MulticastClient client = new MulticastClient()
     .addCriticalDatabase("http://localhost:9200", "http://localhost:9201")
     .addNonCriticalDatabase("http://localhost:9203");
 ```
-
+*providing a list of urls to the constructor will add those as critical database*
+   
 Usage
 --------------
 There are two kinds of endpoints supported by `MulticastClient`.
