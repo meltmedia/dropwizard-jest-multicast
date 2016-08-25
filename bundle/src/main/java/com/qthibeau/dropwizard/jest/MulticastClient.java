@@ -10,6 +10,7 @@ import io.searchbox.client.config.HttpClientConfig;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -23,7 +24,10 @@ public class MulticastClient implements JestClient {
     private Set<JestClient> nonCriticalClients;
 
     /* Make constructor private because we are following the builder pattern */
-    private MulticastClient() {};
+    private MulticastClient() {
+        this.criticalClients = new HashSet<>();
+        this.nonCriticalClients = new HashSet<>();
+    };
 
     @Override
     public <T extends JestResult> T execute(Action<T> action) throws IOException {
