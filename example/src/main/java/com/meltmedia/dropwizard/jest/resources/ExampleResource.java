@@ -1,10 +1,8 @@
-package com.qthibeau.dropwizard.jest.resources;
+package com.meltmedia.dropwizard.jest.resources;
 
-import com.qthibeau.dropwizard.jest.MulticastClient;
 import io.searchbox.client.JestClient;
 import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 

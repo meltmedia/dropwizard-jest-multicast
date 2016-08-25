@@ -1,6 +1,5 @@
-package com.qthibeau.dropwizard.jest;
+package com.meltmedia.dropwizard.jest;
 
-import io.searchbox.client.JestClient;
 import org.junit.After;
 import org.junit.Test;
 

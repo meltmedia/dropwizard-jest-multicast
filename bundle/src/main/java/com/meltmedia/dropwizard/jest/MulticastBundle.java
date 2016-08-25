@@ -1,4 +1,4 @@
-package com.qthibeau.dropwizard.jest;
+package com.meltmedia.dropwizard.jest;
 
 import io.dropwizard.Configuration;
 import io.dropwizard.ConfiguredBundle;

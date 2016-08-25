@@ -1,7 +1,6 @@
-package com.qthibeau.dropwizard.jest;
+package com.meltmedia.dropwizard.jest;
 
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.JestResult;

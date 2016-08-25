@@ -1,10 +1,9 @@
-package com.qthibeau.dropwizard.jest.guice;
+package com.meltmedia.dropwizard.jest.guice;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
-import com.qthibeau.dropwizard.jest.MulticastBundle;
-import com.qthibeau.dropwizard.jest.MulticastClient;
+import com.meltmedia.dropwizard.jest.MulticastBundle;
 import io.searchbox.client.JestClient;
 
 import java.util.function.Supplier;

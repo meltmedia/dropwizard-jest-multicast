@@ -1,6 +1,6 @@
-package com.qthibeau.dropwizard.jest;
+package com.meltmedia.dropwizard.jest;
 
-import com.qthibeau.dropwizard.jest.resources.ExampleResource;
+import com.meltmedia.dropwizard.jest.resources.ExampleResource;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;

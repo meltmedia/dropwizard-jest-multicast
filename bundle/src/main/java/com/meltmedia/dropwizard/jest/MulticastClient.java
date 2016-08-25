@@ -1,4 +1,4 @@
-package com.qthibeau.dropwizard.jest;
+package com.meltmedia.dropwizard.jest;
 
 import io.searchbox.action.Action;
 import io.searchbox.client.JestClient;
