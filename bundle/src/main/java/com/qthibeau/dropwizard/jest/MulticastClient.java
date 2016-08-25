@@ -27,8 +27,16 @@ public class MulticastClient implements JestClient {
 
     @Override
     public <T extends JestResult> T execute(Action<T> action) throws IOException {
+        /* Since the criticalClients are concatted first, they will be processed first */
         Stream<JestClient> clients = Stream.concat(criticalClients.stream(), nonCriticalClients.stream());
 
+        /*
+         * Idea here is to create a Collection of all the JestResult objects, then return the first one, which should
+         * be from the first critical client if one exists, and from the first nonCritical client otherwise. If there is
+         * an error from a criticalClient, an exception is thrown which should end the whole operation. If a nonCritical
+         * client encounters an error, the exception will be printed and null returned;
+         *
+         */
         return clients.map((JestClient client) -> {
 
             try {
