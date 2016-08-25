@@ -4,6 +4,7 @@ import io.dropwizard.Configuration;
 import io.dropwizard.ConfiguredBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.searchbox.client.JestClient;
 
 import java.util.Collection;
 import java.util.function.Supplier;
@@ -45,9 +46,9 @@ public class MulticastBundle <C extends Configuration> implements ConfiguredBund
     private ConfigurationAccessor<C> accessor;
     private Collection<MulticastConfiguration> multicastConfigurations;
     private MulticastManager clientManager;
-    private Supplier<MulticastClient> clientSupplier;
+    private Supplier<JestClient> clientSupplier;
 
-    public Supplier<MulticastClient> getClientSupplier() {
+    public Supplier<JestClient> getClientSupplier() {
         return this.clientSupplier;
     }
 
