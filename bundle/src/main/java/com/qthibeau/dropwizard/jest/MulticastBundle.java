@@ -47,6 +47,10 @@ public class MulticastBundle <C extends Configuration> implements ConfiguredBund
     private MulticastManager clientManager;
     private Supplier<MulticastClient> clientSupplier;
 
+    public Supplier<MulticastClient> getClientSupplier() {
+        return this.clientSupplier;
+    }
+
     @Override
     public void run(C configuration, Environment environment) throws Exception {
         this.multicastConfigurations = this.accessor.getConfiguration(configuration);
