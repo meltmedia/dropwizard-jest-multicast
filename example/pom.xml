@@ -11,5 +11,17 @@
 
     <artifactId>dropwizard-jest-multicast-example</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.qthibeau.dropwizard</groupId>
+            <artifactId>dropwizard-jest-multicast</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
 
 </project>
