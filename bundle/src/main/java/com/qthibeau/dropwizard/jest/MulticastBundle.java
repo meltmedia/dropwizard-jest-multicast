@@ -28,7 +28,7 @@ public class MulticastBundle <C extends Configuration> implements ConfiguredBund
             this.bundle = new MulticastBundle<C>();
         }
 
-        public Builder withConfiguration(ConfigurationAccessor<C> configurationAccessor) {
+        public Builder<C> withConfiguration(ConfigurationAccessor<C> configurationAccessor) {
             this.bundle.accessor = configurationAccessor;
             return this;
         }
