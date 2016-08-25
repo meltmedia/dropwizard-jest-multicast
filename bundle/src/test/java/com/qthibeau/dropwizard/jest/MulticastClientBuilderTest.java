@@ -1,6 +1,7 @@
 package com.qthibeau.dropwizard.jest;
 
 import io.searchbox.client.JestClient;
+import org.junit.After;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -23,11 +24,11 @@ public class MulticastClientBuilderTest {
         MulticastConfiguration clientConfiguration1 = new MulticastConfiguration();
         clientConfiguration1.setClusterName("elasticsearch");
         clientConfiguration1.setDatabaseUrls(Arrays.asList("http://localhost:9200", "http://localhost:9201"));
-        clientConfiguration1.setCritical(true);
+        clientConfiguration1.setCritical(isCritical);
 
         return clientConfiguration1;
     }
-
+    
     @Test
     public void emptyBuilderTest() {
         client = new MulticastClient.Builder()
