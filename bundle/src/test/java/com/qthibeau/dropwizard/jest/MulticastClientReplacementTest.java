@@ -37,7 +37,7 @@ public class MulticastClientReplacementTest {
 
     private JestClient client;
 
-    public MulticastClientReplacementTest(JestClient client) {
+    public MulticastClientReplacementTest(String name, JestClient client) {
         this.client = client;
     }
 
@@ -79,8 +79,8 @@ public class MulticastClientReplacementTest {
         esMock.verify(postRequestedFor(urlMatching("/testindex/testtype/*")));
     }
 
-    @Parameterized.Parameters
-    public static Collection<JestClient[]> clientParameterProvider() {
+    @Parameterized.Parameters(name = "{0}")
+    public static Collection<Object[]> clientParameterProvider() {
         JestClientFactory clientFactory = new JestClientFactory();
         HttpClientConfig clientConfig = new HttpClientConfig.Builder("http://localhost:9201")
                 .multiThreaded(true)
@@ -100,9 +100,9 @@ public class MulticastClientReplacementTest {
                 .build();
 
 
-        return Arrays.asList(new JestClient[][]{
-                { jestClient },
-                { multicastClient }
+        return Arrays.asList(new Object[][]{
+                { "jest client", jestClient },
+                { "multicast client", multicastClient }
         });
     }
 
