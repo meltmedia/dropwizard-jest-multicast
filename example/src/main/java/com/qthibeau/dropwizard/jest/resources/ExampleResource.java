@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @Path("/example")
 public class ExampleResource {
 
-    private Supplier<MulticastClient> clientSupplier;
+    private Supplier<JestClient> clientSupplier;
 
     private class Thing {
 
@@ -37,7 +37,7 @@ public class ExampleResource {
         }
     }
 
-    public ExampleResource(Supplier<MulticastClient> jestClientSupplier) {
+    public ExampleResource(Supplier<JestClient> jestClientSupplier) {
 
         this.clientSupplier = jestClientSupplier;
     }
