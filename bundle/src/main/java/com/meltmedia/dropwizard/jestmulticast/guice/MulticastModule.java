@@ -1,9 +1,9 @@
-package com.meltmedia.dropwizard.jest.guice;
+package com.meltmedia.dropwizard.jestmulticast.guice;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
-import com.meltmedia.dropwizard.jest.MulticastBundle;
+import com.meltmedia.dropwizard.jestmulticast.MulticastBundle;
 import io.searchbox.client.JestClient;
 
 import java.util.function.Supplier;

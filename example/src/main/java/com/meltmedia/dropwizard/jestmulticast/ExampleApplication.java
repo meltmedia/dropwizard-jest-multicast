@@ -1,6 +1,6 @@
-package com.meltmedia.dropwizard.jest;
+package com.meltmedia.dropwizard.jestmulticast;
 
-import com.meltmedia.dropwizard.jest.resources.ExampleResource;
+import com.meltmedia.dropwizard.jestmulticast.resources.ExampleResource;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;

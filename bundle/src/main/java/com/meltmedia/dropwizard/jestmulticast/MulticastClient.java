@@ -1,4 +1,4 @@
-package com.meltmedia.dropwizard.jest;
+package com.meltmedia.dropwizard.jestmulticast;
 
 import io.searchbox.action.Action;
 import io.searchbox.client.JestClient;
@@ -6,61 +6,107 @@ import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.JestResult;
 import io.searchbox.client.JestResultHandler;
 import io.searchbox.client.config.HttpClientConfig;
+import io.searchbox.core.Delete;
+import io.searchbox.core.Index;
+import io.searchbox.core.Search;
+import io.searchbox.core.SearchResult;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * Created by qthibeault on 8/25/16.
  */
+
 public class MulticastClient implements JestClient {
 
-    private Set<JestClient> criticalClients;
-    private Set<JestClient> nonCriticalClients;
+    private List<JestClient> criticalClients;
+    private List<JestClient> nonCriticalClients;
 
     /* Make constructor private because we are following the builder pattern */
     private MulticastClient() {
-        this.criticalClients = new HashSet<>();
-        this.nonCriticalClients = new HashSet<>();
+        this.criticalClients = new ArrayList<>();
+        this.nonCriticalClients = new ArrayList<>();
     };
 
     @Override
-    public <T extends JestResult> T execute(Action<T> action) throws IOException {
-        /* Since the criticalClients are concatted first, they will be processed first */
-        Stream<JestClient> clients = Stream.concat(criticalClients.stream(), nonCriticalClients.stream());
+    public <T extends JestResult> T execute(Action<T> action) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("This operation is not implemented at this time.");
+    }
 
-        /*
-         * Idea here is to create a Collection of all the JestResult objects, then return the first one, which should
-         * be from the first critical client if one exists, and from the first nonCritical client otherwise. If there is
-         * an error from a criticalClient, an exception is thrown which should end the whole operation. If a nonCritical
-         * client encounters an error, the exception will be printed and null returned;
-         *
-         */
-        return clients.map((JestClient client) -> {
+    private SearchResult execute(Search search) throws IOException {
+        JestClient client;
 
+        if( !this.criticalClients.isEmpty() ) {
+            client = criticalClients.get(0);
+        }
+        else {
+            if( !this.nonCriticalClients.isEmpty() ) {
+                client = nonCriticalClients.get(0);
+            }
+            else {
+                throw new IllegalStateException("Cannot perform search without being provided at least one client");
+            }
+        }
+
+        return client.execute(search);
+    }
+
+    private JestResult execute(Index index) throws IOException {
+
+        Stream<JestResult> criticalResults = this.criticalClients.stream().map((JestClient client) -> {
             try {
-
-                return client.execute(action);
+                return client.execute(index);
             }
             catch(IOException e) {
-
-                if(criticalClients.contains(client)) {
-                    throw new UncheckedIOException(e);
-                }
-                else {
-                    e.printStackTrace();
-                    return null;
-                }
+                throw new UncheckedIOException(e);
             }
-        })
-        .collect(Collectors.toList())
-        .get(0);
+        });
+
+        Stream<JestResult> nonCriticalResults = this.nonCriticalClients.stream().map((JestClient client) -> {
+            try {
+                return client.execute(index);
+            }
+            catch(IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        });
+
+
+        return Stream.concat(criticalResults, nonCriticalResults).collect(Collectors.toList()).get(0);
+
     }
+
+    private JestResult execute(Delete delete) throws IOException {
+
+        Stream<JestResult> criticalResults = this.criticalClients.stream().map((JestClient client) -> {
+            try {
+                return client.execute(delete);
+            }
+            catch(IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
+
+        Stream<JestResult> nonCriticalResults = this.nonCriticalClients.stream().map((JestClient client) -> {
+            try {
+                return client.execute(delete);
+            }
+            catch(IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        });
+
+
+        return Stream.concat(criticalResults, nonCriticalResults).collect(Collectors.toList()).get(0);
+
+    }
+
 
     @Override
     public <T extends JestResult> void executeAsync(Action<T> action, JestResultHandler<? super T> jestResultHandler) {
@@ -124,11 +170,11 @@ public class MulticastClient implements JestClient {
         }
     }
 
-    public Set<JestClient> getCriticalClients() {
+    public List<JestClient> getCriticalClients() {
         return this.criticalClients;
     }
 
-    public Set<JestClient> getNonCriticalClients() {
+    public List<JestClient> getNonCriticalClients() {
         return this.nonCriticalClients;
     }
 

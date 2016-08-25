@@ -1,4 +1,4 @@
-package com.meltmedia.dropwizard.jest;
+package com.meltmedia.dropwizard.jestmulticast;
 
 import org.junit.After;
 import org.junit.Test;

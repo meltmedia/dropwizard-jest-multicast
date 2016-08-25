@@ -1,4 +1,4 @@
-package com.meltmedia.dropwizard.jest.resources;
+package com.meltmedia.dropwizard.jestmulticast.resources;
 
 import io.searchbox.client.JestClient;
 import io.searchbox.core.Search;

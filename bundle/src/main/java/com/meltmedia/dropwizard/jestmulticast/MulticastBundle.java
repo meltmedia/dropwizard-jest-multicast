@@ -1,4 +1,4 @@
-package com.meltmedia.dropwizard.jest;
+package com.meltmedia.dropwizard.jestmulticast;
 
 import io.dropwizard.Configuration;
 import io.dropwizard.ConfiguredBundle;

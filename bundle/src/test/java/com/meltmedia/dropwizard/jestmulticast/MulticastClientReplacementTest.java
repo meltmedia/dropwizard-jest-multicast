@@ -1,4 +1,4 @@
-package com.meltmedia.dropwizard.jest;
+package com.meltmedia.dropwizard.jestmulticast;
 
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import io.searchbox.client.JestClient;
