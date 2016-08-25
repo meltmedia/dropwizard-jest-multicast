@@ -28,7 +28,12 @@ public class MulticastClientBuilderTest {
 
         return clientConfiguration1;
     }
-    
+
+    @After
+    public void shutdownClient() {
+        client.shutdownClient();
+    }
+
     @Test
     public void emptyBuilderTest() {
         client = new MulticastClient.Builder()
