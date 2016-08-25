@@ -1,5 +1,6 @@
 package com.meltmedia.dropwizard.jestmulticast;
 
+import com.google.common.collect.Lists;
 import io.searchbox.action.Action;
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
@@ -32,79 +33,42 @@ public class MulticastClient implements JestClient {
         this.nonCriticalClients = new ArrayList<>();
     };
 
+    private static List<Class<?>> multiCastTypes = Lists.newArrayList(Index.class);
+    private static List<Class<?>> unicastTypes = Lists.newArrayList(Search.class);
+
     @Override
-    public <T extends JestResult> T execute(Action<T> action) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("This operation is not implemented at this time.");
-    }
+    public <T extends JestResult> T execute(Action<T> action) throws IOException, UnsupportedOperationException {
 
-    private SearchResult execute(Search search) throws IOException {
-        JestClient client;
+        Stream<JestClient> clients;
 
-        if( !this.criticalClients.isEmpty() ) {
-            client = criticalClients.get(0);
+        if( action.getClass().isAssignableFrom(Search.class) ) {
+            clients = criticalClients.subList(0,1).stream();
         }
-        else {
-            if( !this.nonCriticalClients.isEmpty() ) {
-                client = nonCriticalClients.get(0);
-            }
-            else {
-                throw new IllegalStateException("Cannot perform search without being provided at least one client");
-            }
+        else if( action.getClass().isAssignableFrom(Index.class) || action.getClass().isAssignableFrom(Delete.class) ) {
+            clients = Stream.concat(criticalClients.stream(), nonCriticalClients.stream());
+        }
+        else{
+            throw new UnsupportedOperationException("This operation is not implemented at this time.");
         }
 
-        return client.execute(search);
-    }
+        return clients.map((JestClient client) -> {
 
-    private JestResult execute(Index index) throws IOException {
-
-        Stream<JestResult> criticalResults = this.criticalClients.stream().map((JestClient client) -> {
             try {
-                return client.execute(index);
+                return client.execute(action);
             }
             catch(IOException e) {
-                throw new UncheckedIOException(e);
+
+                if( criticalClients.contains(client) ) {
+                    throw new UncheckedIOException(e);
+                }
+                else{
+                    e.printStackTrace();
+                    return null;
+                }
             }
-        });
-
-        Stream<JestResult> nonCriticalResults = this.nonCriticalClients.stream().map((JestClient client) -> {
-            try {
-                return client.execute(index);
-            }
-            catch(IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-        });
-
-
-        return Stream.concat(criticalResults, nonCriticalResults).collect(Collectors.toList()).get(0);
-
-    }
-
-    private JestResult execute(Delete delete) throws IOException {
-
-        Stream<JestResult> criticalResults = this.criticalClients.stream().map((JestClient client) -> {
-            try {
-                return client.execute(delete);
-            }
-            catch(IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
-
-        Stream<JestResult> nonCriticalResults = this.nonCriticalClients.stream().map((JestClient client) -> {
-            try {
-                return client.execute(delete);
-            }
-            catch(IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-        });
-
-
-        return Stream.concat(criticalResults, nonCriticalResults).collect(Collectors.toList()).get(0);
-
+        })
+        .collect(Collectors.toList())
+                .get(0);
     }
 
 
