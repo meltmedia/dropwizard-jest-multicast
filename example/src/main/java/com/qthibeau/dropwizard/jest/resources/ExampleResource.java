@@ -1,5 +1,6 @@
 package com.qthibeau.dropwizard.jest.resources;
 
+import com.qthibeau.dropwizard.jest.MulticastClient;
 import io.searchbox.client.JestClient;
 import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
 @Path("/example")
 public class ExampleResource {
 
-    private Supplier<JestClient> clientSupplier;
+    private Supplier<MulticastClient> clientSupplier;
 
     private class Thing {
 
@@ -36,7 +37,7 @@ public class ExampleResource {
         }
     }
 
-    public ExampleResource(Supplier<JestClient> jestClientSupplier) {
+    public ExampleResource(Supplier<MulticastClient> jestClientSupplier) {
 
         this.clientSupplier = jestClientSupplier;
     }
