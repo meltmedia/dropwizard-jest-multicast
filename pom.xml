@@ -9,6 +9,7 @@
 
     <modules>
         <module>bundle</module>
+        <module>example</module>
     </modules>
 
     <name>dropwizard-jest-multicast</name>
