@@ -50,7 +50,7 @@ public class MulticastClientBuilderTest {
         MulticastConfiguration clientConfiguration = generateClientConfiguration(true);
         clientConfigurations.add(clientConfiguration);
 
-        MulticastClient client = new MulticastClient.Builder()
+        client = new MulticastClient.Builder()
                 .withConfigurations(clientConfigurations)
                 .build();
 
@@ -65,7 +65,7 @@ public class MulticastClientBuilderTest {
         MulticastConfiguration clientConfiguration = generateClientConfiguration(false);
         clientConfigurations.add(clientConfiguration);
 
-        MulticastClient client = new MulticastClient.Builder()
+        client = new MulticastClient.Builder()
                 .withConfigurations(clientConfigurations)
                 .build();
 
@@ -83,7 +83,7 @@ public class MulticastClientBuilderTest {
         clientConfigurations.add(nonCriticalClientConfiguration);
         clientConfigurations.add(criticalClientConfiguration);
 
-        MulticastClient client = new MulticastClient.Builder()
+        client = new MulticastClient.Builder()
                 .withConfigurations(clientConfigurations)
                 .build();
 
