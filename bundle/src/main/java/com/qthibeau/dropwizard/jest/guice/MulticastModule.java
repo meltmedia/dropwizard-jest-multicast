@@ -5,6 +5,7 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.qthibeau.dropwizard.jest.MulticastBundle;
 import com.qthibeau.dropwizard.jest.MulticastClient;
+import io.searchbox.client.JestClient;
 
 import java.util.function.Supplier;
 
@@ -26,13 +27,13 @@ public class MulticastModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public MulticastClient provideClient() {
+    public JestClient provideClient() {
         return this.bundle.getClientSupplier().get();
     }
 
     @Provides
     @Singleton
-    public Supplier<MulticastClient> provideClientSupplier() {
+    public Supplier<JestClient> provideClientSupplier() {
         return this.bundle.getClientSupplier();
     }
 
