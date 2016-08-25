@@ -120,4 +120,12 @@ public class MulticastClient implements JestClient {
         }
     }
 
+    public Collection<JestClient> getCriticalClients() {
+        return this.criticalClients;
+    }
+
+    public Collection<JestClient> getNonCriticalClients() {
+        return this.nonCriticalClients;
+    }
+
 }
