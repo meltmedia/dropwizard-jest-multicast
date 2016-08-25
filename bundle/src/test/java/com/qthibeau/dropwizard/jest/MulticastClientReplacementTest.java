@@ -1,5 +1,6 @@
 package com.qthibeau.dropwizard.jest;
 
+import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
@@ -8,17 +9,17 @@ import io.searchbox.client.config.HttpClientConfig;
 import io.searchbox.core.Index;
 import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
+import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.*;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 /**
@@ -28,10 +29,13 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 @RunWith(Parameterized.class)
 public class MulticastClientReplacementTest {
 
-    private JestClient client;
+    @ClassRule
+    public static WireMockClassRule wireMockRule = new WireMockClassRule(9201);
 
     @Rule
-    public WireMockRule wireMockRule = new WireMockRule(9201);
+    public WireMockClassRule esMock = wireMockRule;
+
+    private JestClient client;
 
     public MulticastClientReplacementTest(JestClient client) {
         this.client = client;
@@ -39,7 +43,8 @@ public class MulticastClientReplacementTest {
 
     @Test
     public void testSearch() throws IOException {
-        stubFor(post(urlEqualTo("/testindex/testtype/_search"))
+
+        esMock.stubFor(post(urlEqualTo("/testindex/testtype/_search"))
             .willReturn(aResponse()
                 .withStatus(200)
                 .withHeader("Content-Type", "application/json")
@@ -51,12 +56,15 @@ public class MulticastClientReplacementTest {
                 .build();
 
         SearchResult result = this.client.execute(search);
-        verify(1, postRequestedFor(urlEqualTo("/testindex/testtype/_search")));
+        assertThat(result, is(notNullValue()));
+
+        esMock.verify(postRequestedFor(urlEqualTo("/testindex/testtype/_search")));
     }
 
     @Test
     public void testIndex() throws IOException {
-        stubFor(post(urlEqualTo("/testindex/testtype"))
+
+        esMock.stubFor(post(urlEqualTo("/testindex/testtype"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
@@ -68,11 +76,11 @@ public class MulticastClientReplacementTest {
                 .build();
 
         JestResult result = this.client.execute(index);
-        verify(1, postRequestedFor(urlEqualTo("/testindex/testtype/_search")));
+        esMock.verify(postRequestedFor(urlMatching("/testindex/testtype/*")));
     }
 
     @Parameterized.Parameters
-    public static Collection<JestClient> clientParameterProvider() {
+    public static Collection<JestClient[]> clientParameterProvider() {
         JestClientFactory clientFactory = new JestClientFactory();
         HttpClientConfig clientConfig = new HttpClientConfig.Builder("http://localhost:9201")
                 .multiThreaded(true)
@@ -84,7 +92,7 @@ public class MulticastClientReplacementTest {
         List<MulticastConfiguration> clientConfigurations = new ArrayList<>();
         MulticastConfiguration multicastConfiguration = new MulticastConfiguration();
         multicastConfiguration.setCritical(true);
-        multicastConfiguration.setDatabaseUrls(Arrays.asList("http://localhost:9201"));
+        multicastConfiguration.setDatabaseUrls(Collections.singletonList("http://localhost:9201"));
         clientConfigurations.add(multicastConfiguration);
 
         MulticastClient multicastClient = new MulticastClient.Builder()
@@ -92,7 +100,10 @@ public class MulticastClientReplacementTest {
                 .build();
 
 
-        return Arrays.asList(jestClient, multicastClient);
+        return Arrays.asList(new JestClient[][]{
+                { jestClient },
+                { multicastClient }
+        });
     }
 
 }
