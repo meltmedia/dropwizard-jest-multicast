@@ -14,6 +14,9 @@ import java.util.function.Supplier;
 
 public class MulticastBundle <C extends Configuration> implements ConfiguredBundle<C> {
 
+    /* Builder pattern private constructor */
+    private MulticastBundle() {}
+
     public static interface ConfigurationAccessor<C extends Configuration> {
         public Collection<MulticastConfiguration> getConfiguration(C configuration);
     }
