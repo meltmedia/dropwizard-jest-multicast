@@ -18,6 +18,16 @@ public class MulticastClientBuilderTest {
 
     private MulticastClient client;
 
+    private MulticastConfiguration generateClientConfiguration(Boolean isCritical) {
+
+        MulticastConfiguration clientConfiguration1 = new MulticastConfiguration();
+        clientConfiguration1.setClusterName("elasticsearch");
+        clientConfiguration1.setDatabaseUrls(Arrays.asList("http://localhost:9200", "http://localhost:9201"));
+        clientConfiguration1.setCritical(true);
+
+        return clientConfiguration1;
+    }
+
     @Test
     public void emptyBuilderTest() {
         client = new MulticastClient.Builder()
@@ -31,11 +41,8 @@ public class MulticastClientBuilderTest {
     public void criticalClientBuilderTest() {
         List<MulticastConfiguration> clientConfigurations = new LinkedList<>();
 
-        MulticastConfiguration clientConfiguration1 = new MulticastConfiguration();
-        clientConfiguration1.setClusterName("elasticsearch");
-        clientConfiguration1.setDatabaseUrls(Arrays.asList("http://localhost:9200", "http://localhost:9201"));
-        clientConfiguration1.setCritical(true);
-        clientConfigurations.add(clientConfiguration1);
+        MulticastConfiguration clientConfiguration = generateClientConfiguration(true);
+        clientConfigurations.add(clientConfiguration);
 
         MulticastClient client = new MulticastClient.Builder()
                 .withConfigurations(clientConfigurations)
@@ -49,10 +56,8 @@ public class MulticastClientBuilderTest {
     public void nonCriticalClientBuilderTest() {
         List<MulticastConfiguration> clientConfigurations = new LinkedList<>();
 
-        MulticastConfiguration clientConfiguration1 = new MulticastConfiguration();
-        clientConfiguration1.setClusterName("elasticsearch");
-        clientConfiguration1.setDatabaseUrls(Arrays.asList("http://localhost:9200", "http://localhost:9201"));
-        clientConfigurations.add(clientConfiguration1);
+        MulticastConfiguration clientConfiguration = generateClientConfiguration(false);
+        clientConfigurations.add(clientConfiguration);
 
         MulticastClient client = new MulticastClient.Builder()
                 .withConfigurations(clientConfigurations)
@@ -66,17 +71,11 @@ public class MulticastClientBuilderTest {
     public void bothClientTypeBuilderTest() {
         List<MulticastConfiguration> clientConfigurations = new LinkedList<>();
 
-        MulticastConfiguration clientConfiguration1 = new MulticastConfiguration();
-        clientConfiguration1.setClusterName("elasticsearch");
-        clientConfiguration1.setDatabaseUrls(Arrays.asList("http://localhost:9200", "http://localhost:9201"));
-        clientConfigurations.add(clientConfiguration1);
+        MulticastConfiguration nonCriticalClientConfiguration = generateClientConfiguration(false);
+        MulticastConfiguration criticalClientConfiguration = generateClientConfiguration(true);
 
-
-        MulticastConfiguration clientConfiguration2 = new MulticastConfiguration();
-        clientConfiguration2.setClusterName("elasticsearch");
-        clientConfiguration2.setDatabaseUrls(Arrays.asList("http://localhost:9200", "http://localhost:9201"));
-        clientConfiguration2.setCritical(true);
-        clientConfigurations.add(clientConfiguration2);
+        clientConfigurations.add(nonCriticalClientConfiguration);
+        clientConfigurations.add(criticalClientConfiguration);
 
         MulticastClient client = new MulticastClient.Builder()
                 .withConfigurations(clientConfigurations)
