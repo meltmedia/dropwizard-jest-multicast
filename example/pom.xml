@@ -11,6 +11,8 @@
 
     <artifactId>dropwizard-jest-multicast-example</artifactId>
 
+    <name>Dropwizard Jest Multicast Example</name>
+
     <dependencies>
         <dependency>
             <groupId>io.dropwizard</groupId>

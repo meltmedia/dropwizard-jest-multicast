@@ -11,6 +11,8 @@
 
     <artifactId>dropwizard-jest-multicast</artifactId>
 
+    <name>Dropwizard Jest Multicast</name>
+
     <dependencies>
         <dependency>
             <groupId>io.searchbox</groupId>
