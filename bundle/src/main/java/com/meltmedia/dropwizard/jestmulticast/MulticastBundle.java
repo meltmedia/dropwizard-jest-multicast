@@ -34,6 +34,11 @@ public class MulticastBundle <C extends Configuration> implements ConfiguredBund
             return this;
         }
 
+        public Builder<C> withHealthcheckName(String healthcheckName) {
+            this.bundle.healthcheckName = healthcheckName;
+            return this;
+        }
+
         public MulticastBundle<C> build() {
             if(bundle.accessor == null) {
                 throw new IllegalStateException("Cannot build MulticastBundle without configuration");
@@ -47,6 +52,7 @@ public class MulticastBundle <C extends Configuration> implements ConfiguredBund
     private Collection<MulticastConfiguration> multicastConfigurations;
     private MulticastManager clientManager;
     private Supplier<JestClient> clientSupplier;
+    private String healthcheckName;
 
     public Supplier<JestClient> getClientSupplier() {
         return this.clientSupplier;
