@@ -1,5 +1,6 @@
 package com.meltmedia.dropwizard.jestmulticast.resources;
 
+import com.meltmedia.dropwizard.jestmulticast.MulticastClient;
 import io.searchbox.client.JestClient;
 import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 @Path("/example")
 public class ExampleResource {
 
-    private Supplier<JestClient> clientSupplier;
+    private Supplier<? extends JestClient> clientSupplier;
 
     private class Thing {
 
@@ -35,7 +36,7 @@ public class ExampleResource {
         }
     }
 
-    public ExampleResource(Supplier<JestClient> jestClientSupplier) {
+    public ExampleResource(Supplier<? extends JestClient> jestClientSupplier) {
 
         this.clientSupplier = jestClientSupplier;
     }
