@@ -51,11 +51,11 @@ public class MulticastBundle <C extends Configuration> implements ConfiguredBund
     private ConfigurationAccessor<C> accessor;
     private Collection<MulticastConfiguration> multicastConfigurations;
     private MulticastManager clientManager;
-    private Supplier<JestClient> clientSupplier;
+    private Supplier<MulticastClient> clientSupplier;
     private String healthcheckName;
     private MulticastHealthcheck multicastHealthcheck;
 
-    public Supplier<JestClient> getClientSupplier() {
+    public Supplier<? extends JestClient> getClientSupplier() {
         return this.clientSupplier;
     }
 
