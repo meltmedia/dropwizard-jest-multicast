@@ -96,7 +96,7 @@ public class MulticastClient implements JestClient {
         Stream<JestClient> clients = Stream.concat(criticalClients.stream(), nonCriticalClients.stream());
         return clients.map((JestClient client) -> {
             try {
-                client.execute(health);
+                return client.execute(health);
             }
             catch(IOException e) {
                 throw new UncheckedIOException(e);
