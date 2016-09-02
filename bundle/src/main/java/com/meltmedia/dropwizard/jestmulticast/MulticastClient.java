@@ -7,6 +7,7 @@ import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.JestResult;
 import io.searchbox.client.JestResultHandler;
 import io.searchbox.client.config.HttpClientConfig;
+import io.searchbox.cluster.Health;
 import io.searchbox.core.Delete;
 import io.searchbox.core.Index;
 import io.searchbox.core.Search;
@@ -89,6 +90,19 @@ public class MulticastClient implements JestClient {
     @Override
     public void setServers(Set<String> set) {
 
+    }
+
+    public List<JestResult> checkHealth(Health health) throws IOException {
+        Stream<JestClient> clients = Stream.concat(criticalClients.stream(), nonCriticalClients.stream());
+        return clients.map((JestClient client) -> {
+            try {
+                client.execute(health);
+            }
+            catch(IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        })
+        .collect(Collectors.toList());
     }
 
     public static class Builder {
