@@ -11,6 +11,7 @@ import java.util.function.Supplier;
 /**
  * Created by qthibeault on 8/25/16.
  */
+
 public class MulticastModule extends AbstractModule {
 
     private MulticastBundle<?> bundle;
@@ -32,7 +33,7 @@ public class MulticastModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public Supplier<JestClient> provideClientSupplier() {
+    public Supplier<? extends JestClient> provideClientSupplier() {
         return this.bundle.getClientSupplier();
     }
 
