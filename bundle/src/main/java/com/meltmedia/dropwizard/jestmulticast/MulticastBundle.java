@@ -53,6 +53,7 @@ public class MulticastBundle <C extends Configuration> implements ConfiguredBund
     private MulticastManager clientManager;
     private Supplier<JestClient> clientSupplier;
     private String healthcheckName;
+    private MulticastHealthcheck multicastHealthcheck;
 
     public Supplier<JestClient> getClientSupplier() {
         return this.clientSupplier;
@@ -63,8 +64,10 @@ public class MulticastBundle <C extends Configuration> implements ConfiguredBund
         this.multicastConfigurations = this.accessor.getConfiguration(configuration);
         this.clientManager = new MulticastManager(this.multicastConfigurations);
         this.clientSupplier = clientManager::getClient;
+        this.multicastHealthcheck = new MulticastHealthcheck(this.clientSupplier);
 
         environment.lifecycle().manage(this.clientManager);
+        environment.healthChecks().register(this.healthcheckName, this.multicastHealthcheck);
     }
 
     @Override
