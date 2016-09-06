@@ -91,7 +91,7 @@ public class MulticastClientReplacementTest {
         List<MulticastConfiguration> clientConfigurations = new ArrayList<>();
         MulticastConfiguration multicastConfiguration = new MulticastConfiguration();
         multicastConfiguration.setCritical(true);
-        multicastConfiguration.setDatabaseUrls(Collections.singletonList("http://localhost:9201"));
+        multicastConfiguration.setServers(Collections.singletonList("http://localhost:9201"));
         clientConfigurations.add(multicastConfiguration);
 
         MulticastClient multicastClient = new MulticastClient.Builder()

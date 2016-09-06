@@ -1,5 +1,5 @@
 template: "Hello %s"
 elasticsearch:
   - critical: true
-    databaseUrls:
+    servers:
       - "http://localhost:9200"

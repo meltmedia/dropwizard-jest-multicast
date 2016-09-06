@@ -121,7 +121,7 @@ public class MulticastClient implements JestClient {
 
             configurations.forEach((MulticastConfiguration configuration) -> {
 
-                configuration.getDatabaseUrls().forEach((String url) -> {
+                configuration.getServers().forEach((String url) -> {
 
                     JestClientFactory clientFactory = new JestClientFactory();
                     HttpClientConfig clientConfig = new HttpClientConfig.Builder(url)

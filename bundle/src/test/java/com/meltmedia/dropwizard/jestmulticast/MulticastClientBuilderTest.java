@@ -22,7 +22,7 @@ public class MulticastClientBuilderTest {
 
         MulticastConfiguration clientConfiguration1 = new MulticastConfiguration();
         clientConfiguration1.setClusterName("elasticsearch");
-        clientConfiguration1.setDatabaseUrls(Arrays.asList("http://localhost:9200", "http://localhost:9201"));
+        clientConfiguration1.setServers(Arrays.asList("http://localhost:9200", "http://localhost:9201"));
         clientConfiguration1.setCritical(isCritical);
 
         return clientConfiguration1;

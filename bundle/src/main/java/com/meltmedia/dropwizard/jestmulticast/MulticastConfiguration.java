@@ -1,6 +1,7 @@
 package com.meltmedia.dropwizard.jestmulticast;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by qthibeault on 8/25/16.
@@ -9,7 +10,7 @@ import java.util.Collection;
 public class MulticastConfiguration {
 
     private String clusterName;
-    private Collection<String> databaseUrls;
+    private List<String> servers;
     private Integer connectionTimeout = 30000;
     private Integer readTimeout = 30000;
     private Integer maxTotalConnections = 1;
@@ -24,12 +25,12 @@ public class MulticastConfiguration {
         this.clusterName = clusterName;
     }
 
-    public Collection<String> getDatabaseUrls() {
-        return databaseUrls;
+    public List<String> getServers() {
+        return servers;
     }
 
-    public void setDatabaseUrls(Collection<String> databaseUrls) {
-        this.databaseUrls = databaseUrls;
+    public void setServers(List<String> servers) {
+        this.servers = servers;
     }
 
     public Integer getConnectionTimeout() {

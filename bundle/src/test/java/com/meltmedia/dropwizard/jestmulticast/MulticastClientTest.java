@@ -32,7 +32,7 @@ public class MulticastClientTest {
 
         MulticastConfiguration clientConfiguration1 = new MulticastConfiguration();
         clientConfiguration1.setClusterName("elasticsearch");
-        clientConfiguration1.setDatabaseUrls(Collections.singletonList(url));
+        clientConfiguration1.setServers(Collections.singletonList(url));
         clientConfiguration1.setCritical(isCritical);
 
         return clientConfiguration1;
