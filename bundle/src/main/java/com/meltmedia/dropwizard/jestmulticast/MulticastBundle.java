@@ -55,7 +55,7 @@ public class MulticastBundle <C extends Configuration> implements ConfiguredBund
     private String healthcheckName;
     private MulticastHealthcheck multicastHealthcheck;
 
-    public Supplier<? extends JestClient> getClientSupplier() {
+    public Supplier<MulticastClient> getClientSupplier() {
         return this.clientSupplier;
     }
 

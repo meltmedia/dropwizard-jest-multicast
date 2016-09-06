@@ -33,8 +33,8 @@ public class MulticastModule extends AbstractModule {
 
     @Provides
     @Singleton
-    public Supplier<? extends JestClient> provideClientSupplier() {
-        return this.bundle.getClientSupplier();
+    public Supplier<JestClient> provideClientSupplier() {
+        return ()->this.bundle.getClientSupplier().get();
     }
 
 }
