@@ -1,5 +1,6 @@
 package com.meltmedia.dropwizard.jestmulticast;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import io.searchbox.action.Action;
 import io.searchbox.client.JestClient;
@@ -16,6 +17,7 @@ import io.searchbox.core.SearchResult;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -70,6 +72,13 @@ public class MulticastClient implements JestClient {
         })
         .collect(Collectors.toList())
                 .get(0);
+    }
+
+    public void multiExecute(BiConsumer<JestClient, Boolean> clientConsumer) {
+        Stream<JestClient> clients = Stream.concat(criticalClients.stream(), nonCriticalClients.stream());
+        clients.forEach((JestClient client) -> {
+            clientConsumer.accept(client, criticalClients.contains(client));
+        });
     }
 
 
