@@ -1,12 +1,14 @@
 package com.meltmedia.dropwizard.jestmulticast;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import io.searchbox.client.JestClient;
 import io.searchbox.core.Index;
 import io.searchbox.core.Search;
 import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -95,6 +97,37 @@ public class MulticastClientTest {
 
         esHost1.verify(postRequestedFor(urlEqualTo("/testindex/testtype")));
         esHost1.verify(postRequestedFor(urlEqualTo("/testindex/testtype")));
+    }
+
+    @Test
+    public void multiExecuteTest() throws IOException {
+
+        esHost1.stubFor(post(urlEqualTo("/testindex/testtype/_search"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{}")));
+
+        this.client.multiExecute((JestClient client, Boolean isCritical) -> {
+            Search search = new Search.Builder("{ \"query\": { \"match_all\": {} } }")
+                    .addIndex("testindex")
+                    .addType("testtype")
+                    .build();
+
+            try {
+                client.execute(search);
+            }
+            catch(IOException e) {
+                if(isCritical){
+                    throw new UncheckedIOException(e);
+                }
+
+                e.printStackTrace();
+            }
+        });
+
+        esHost1.verify(postRequestedFor(urlEqualTo("/testindex/testtype/_search")));
+
     }
 
 }
