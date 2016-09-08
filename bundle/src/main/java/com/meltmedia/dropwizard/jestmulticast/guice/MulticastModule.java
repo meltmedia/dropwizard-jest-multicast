@@ -4,6 +4,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.meltmedia.dropwizard.jestmulticast.MulticastBundle;
+import com.meltmedia.dropwizard.jestmulticast.MulticastClient;
 import io.searchbox.client.JestClient;
 
 import java.util.function.Supplier;
@@ -35,6 +36,18 @@ public class MulticastModule extends AbstractModule {
     @Singleton
     public Supplier<JestClient> provideClientSupplier() {
         return ()->this.bundle.getClientSupplier().get();
+    }
+
+    @Provides
+    @Singleton
+    public MulticastClient provideMulticastClient() {
+        return this.bundle.getClientSupplier().get();
+    }
+
+    @Provides
+    @Singleton
+    public Supplier<MulticastClient> provideMulticastClientSupplier() {
+        return this.bundle.getClientSupplier();
     }
 
 }
