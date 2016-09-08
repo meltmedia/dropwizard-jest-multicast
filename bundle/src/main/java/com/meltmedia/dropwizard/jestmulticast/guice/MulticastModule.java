@@ -15,10 +15,14 @@ import java.util.function.Supplier;
 
 public class MulticastModule extends AbstractModule {
 
-    private MulticastBundle<?> bundle;
+    protected Supplier<MulticastClient> clientSupplier;
 
     public MulticastModule( MulticastBundle<?> bundle ) {
-        this.bundle = bundle;
+        this.clientSupplier = bundle.getClientSupplier();
+    }
+
+    public MulticastModule() {
+        this.clientSupplier = null;
     }
 
     @Override
@@ -29,25 +33,25 @@ public class MulticastModule extends AbstractModule {
     @Provides
     @Singleton
     public JestClient provideClient() {
-        return this.bundle.getClientSupplier().get();
+        return this.clientSupplier.get();
     }
 
     @Provides
     @Singleton
     public Supplier<JestClient> provideClientSupplier() {
-        return ()->this.bundle.getClientSupplier().get();
+        return ()->this.clientSupplier.get();
     }
 
     @Provides
     @Singleton
     public MulticastClient provideMulticastClient() {
-        return this.bundle.getClientSupplier().get();
+        return this.clientSupplier.get();
     }
 
     @Provides
     @Singleton
     public Supplier<MulticastClient> provideMulticastClientSupplier() {
-        return this.bundle.getClientSupplier();
+        return this.clientSupplier;
     }
 
 }
