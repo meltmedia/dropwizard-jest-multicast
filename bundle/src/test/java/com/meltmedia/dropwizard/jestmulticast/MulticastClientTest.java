@@ -13,8 +13,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 /**
  * Created by qthibeault on 8/25/16.
@@ -102,6 +105,9 @@ public class MulticastClientTest {
     @Test
     public void multiExecuteTest() throws IOException {
 
+        AtomicInteger operationCounter = new AtomicInteger();
+        AtomicInteger failureCounter = new AtomicInteger();
+
         esHost1.stubFor(post(urlEqualTo("/testindex/testtype/_search"))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -109,6 +115,8 @@ public class MulticastClientTest {
                         .withBody("{}")));
 
         this.client.multiExecute((JestClient client, Boolean isCritical) -> {
+            operationCounter.incrementAndGet();
+
             Search search = new Search.Builder("{ \"query\": { \"match_all\": {} } }")
                     .addIndex("testindex")
                     .addType("testtype")
@@ -118,16 +126,13 @@ public class MulticastClientTest {
                 client.execute(search);
             }
             catch(IOException e) {
-                if(isCritical){
-                    throw new UncheckedIOException(e);
-                }
-
-                e.printStackTrace();
+                failureCounter.incrementAndGet();
             }
         });
 
         esHost1.verify(postRequestedFor(urlEqualTo("/testindex/testtype/_search")));
-
+        assertThat(operationCounter.get(), is(equalTo(2)));
+        assertThat(failureCounter.get(), is(equalTo(1)));
     }
 
 }
