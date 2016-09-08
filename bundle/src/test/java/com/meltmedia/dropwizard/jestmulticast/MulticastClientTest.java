@@ -135,4 +135,9 @@ public class MulticastClientTest {
         assertThat(failureCounter.get(), is(equalTo(1)));
     }
 
+    @Test(expected = UncheckedIOException.class)
+    public void testCriticalFlag() throws IOException {
+        this.client.execute(new Index.Builder(new Object()).build());
+    }
+
 }
