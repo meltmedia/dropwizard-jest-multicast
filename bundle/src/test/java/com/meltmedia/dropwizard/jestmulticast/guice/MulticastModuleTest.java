@@ -18,6 +18,8 @@ import java.util.function.Supplier;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by qthibeault on 9/8/16.
@@ -49,8 +51,6 @@ public class MulticastModuleTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        MulticastModule module = new MulticastModule();
-
         MulticastConfiguration config = new MulticastConfiguration();
         config.setServers(Collections.singletonList("http://localhost:9200"));
         config.setClusterName("cluster");
@@ -60,8 +60,10 @@ public class MulticastModuleTest {
                 .withConfigurations(Collections.singletonList(config))
                 .build();
 
-        module.clientSupplier = () -> client;
+        MulticastBundle<?> bundle = mock(MulticastBundle.class);
+        when(bundle.getClientSupplier()).thenReturn(()->client);
 
+        MulticastModule module = new MulticastModule(bundle);
         injector = Guice.createInjector(module);
     }
 
