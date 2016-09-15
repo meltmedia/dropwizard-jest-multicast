@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
@@ -28,10 +29,7 @@ public class MulticastClientTest {
     private MulticastClient client;
 
     @Rule
-    public WireMockRule esHost1 = new WireMockRule(9201);
-
-    @Rule
-    public WireMockRule esHost2 = new WireMockRule(9202);
+    public WireMockRule esMock = new WireMockRule(8606);
 
     private MulticastConfiguration generateClientConfiguration(String url, Boolean isCritical) {
 
@@ -46,8 +44,8 @@ public class MulticastClientTest {
     public MulticastClientTest() {
 
         List<MulticastConfiguration> configurations = new ArrayList<>();
-        configurations.add(generateClientConfiguration("http://localhost:9201", true));
-        configurations.add(generateClientConfiguration("http://localhost:9202", false));
+        configurations.add(generateClientConfiguration("http://localhost:8606", true));
+        configurations.add(generateClientConfiguration("http://localhost:8606", false));
 
         this.client = new MulticastClient.Builder()
                 .withConfigurations(configurations)
@@ -56,13 +54,17 @@ public class MulticastClientTest {
 
     @Test
     public void searchTest() throws IOException {
-        /* This should only query a a single database */
 
-        esHost1.stubFor(post(urlEqualTo("/testindex/testtype/_search"))
-            .willReturn(aResponse()
-                .withStatus(200)
-                .withHeader("Content-Type", "application/json")
-                .withBody("{}")));
+        /*
+         * The search function of the MulticastClient should only query the first critical database
+         * and return its result. Therefore, in this scenario, there should be a single request to the mock service.
+         */
+
+        esMock.stubFor(post(urlEqualTo("/testindex/testtype/_search"))
+                .willReturn(aResponse()
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody("{}")));
 
         Search search = new Search.Builder("{ \"query\": { \"match_all\": {} } }")
                 .addIndex("testindex")
@@ -71,25 +73,28 @@ public class MulticastClientTest {
 
         this.client.execute(search);
 
-        esHost1.verify(postRequestedFor(urlEqualTo("/testindex/testtype/_search")));
+        esMock.verify(1, postRequestedFor(urlEqualTo("/testindex/testtype/_search")));
 
     }
 
     @Test
     public void indexTest() throws IOException {
-        /* this should query every database */
-
-        esHost1.stubFor(post(urlEqualTo("/testindex/testtype"))
+        esMock.stubFor(post(urlEqualTo("/testindex/testtype"))
+                .inScenario("Index Test")
+                .whenScenarioStateIs(STARTED)
+                .willSetStateTo("NonCritical Index")
                 .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "application/json")
-                        .withBody("{}")));
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody("{}")));
 
-        esHost2.stubFor(post(urlEqualTo("/testindex/testtype"))
+        esMock.stubFor(post(urlEqualTo("/testindex/testtype"))
+                .inScenario("Index Test")
+                .whenScenarioStateIs("NonCritical Index")
                 .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "application/json")
-                        .withBody("{}")));
+                    .withStatus(200)
+                    .withHeader("Content-Type", "application/json")
+                    .withBody("{}")));
 
         Index index = new Index.Builder(new Object())
                 .index("testindex")
@@ -98,17 +103,15 @@ public class MulticastClientTest {
 
         this.client.execute(index);
 
-        esHost1.verify(postRequestedFor(urlEqualTo("/testindex/testtype")));
-        esHost1.verify(postRequestedFor(urlEqualTo("/testindex/testtype")));
+        esMock.verify(2, postRequestedFor(urlEqualTo("/testindex/testtype")));
     }
 
     @Test
     public void multiExecuteTest() throws IOException {
 
         AtomicInteger operationCounter = new AtomicInteger();
-        AtomicInteger failureCounter = new AtomicInteger();
 
-        esHost1.stubFor(post(urlEqualTo("/testindex/testtype/_search"))
+        esMock.stubFor(post(urlEqualTo("/testindex/testtype/_search"))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")
@@ -125,14 +128,11 @@ public class MulticastClientTest {
             try {
                 client.execute(search);
             }
-            catch(IOException e) {
-                failureCounter.incrementAndGet();
-            }
+            catch(IOException e) {}
         });
 
-        esHost1.verify(postRequestedFor(urlEqualTo("/testindex/testtype/_search")));
+        esMock.verify(2, postRequestedFor(urlEqualTo("/testindex/testtype/_search")));
         assertThat(operationCounter.get(), is(equalTo(2)));
-        assertThat(failureCounter.get(), is(equalTo(1)));
     }
 
     @Test(expected = UncheckedIOException.class)
