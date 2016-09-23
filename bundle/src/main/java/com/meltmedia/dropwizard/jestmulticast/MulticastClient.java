@@ -74,11 +74,16 @@ public class MulticastClient implements JestClient {
                 .get(0);
     }
 
-    public void multiExecute(BiConsumer<JestClient, Boolean> clientConsumer) {
-        Stream<JestClient> clients = Stream.concat(criticalClients.stream(), nonCriticalClients.stream());
-        clients.forEach((JestClient client) -> {
+    @FunctionalInterface
+    public interface multiExecuteConsumer<T, K> {
+        public void accept(T t, K k) throws Exception;
+    }
+
+    public void multiExecute(multiExecuteConsumer<JestClient, Boolean> clientConsumer) throws Exception {
+        List<JestClient> clients = Stream.concat(criticalClients.stream(), nonCriticalClients.stream()).collect(Collectors.toList());
+        for(JestClient client : clients) {
             clientConsumer.accept(client, criticalClients.contains(client));
-        });
+        }
     }
 
 
