@@ -107,7 +107,7 @@ public class MulticastClientTest {
     }
 
     @Test
-    public void multiExecuteTest() throws IOException {
+    public void multiExecuteTest() throws IOException, Exception {
 
         AtomicInteger operationCounter = new AtomicInteger();
 
