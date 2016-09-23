@@ -125,10 +125,7 @@ public class MulticastClientTest {
                     .addType("testtype")
                     .build();
 
-            try {
-                client.execute(search);
-            }
-            catch(IOException e) {}
+            client.execute(search);
         });
 
         esMock.verify(2, postRequestedFor(urlEqualTo("/testindex/testtype/_search")));
