@@ -37,7 +37,12 @@ public class MulticastClientRule implements TestRule {
                         .withConfigurations(Collections.singletonList(configuration))
                         .build();
 
-                statement.evaluate();
+                try {
+                    statement.evaluate();
+                }
+                finally {
+                    client.shutdownClient();
+                }
             }
 
         };
