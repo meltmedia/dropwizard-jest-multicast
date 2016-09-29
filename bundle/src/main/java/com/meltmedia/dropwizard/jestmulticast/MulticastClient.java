@@ -44,14 +44,13 @@ public class MulticastClient implements JestClient {
 
         Stream<JestClient> clients;
 
-        if( action.getClass().isAssignableFrom(Search.class) ) {
-            clients = criticalClients.subList(0,1).stream();
-        }
-        else if( action.getClass().isAssignableFrom(Index.class) || action.getClass().isAssignableFrom(Delete.class) ) {
+        // determine if the method requires operations across all clusters
+        if( action.getClass().isAssignableFrom(Index.class) || action.getClass().isAssignableFrom(Delete.class) ) {
             clients = Stream.concat(criticalClients.stream(), nonCriticalClients.stream());
         }
+        // otherwise only use a single client. Prefer the critical clients first if one exists.
         else{
-            throw new UnsupportedOperationException("This operation is not implemented at this time.");
+            clients = (criticalClients.size() > 0) ? criticalClients.subList(0,1).stream() : nonCriticalClients.subList(0,1).stream();
         }
 
         return clients.map((JestClient client) -> {
