@@ -13,6 +13,10 @@
 
     <name>Dropwizard Jest Multicast Example</name>
 
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>io.dropwizard</groupId>
