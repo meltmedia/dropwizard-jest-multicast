@@ -31,12 +31,15 @@ import java.util.stream.Stream;
 
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by qthibeault on 8/25/16.
  */
 
 public class MulticastClient implements JestClient {
+  private static final Logger log = LoggerFactory.getLogger(MulticastClient.class);
   
   public static class StaticCredentialsProvider implements AWSCredentialsProvider {
     public StaticCredentialsProvider( AWSCredentials credentials ) {
@@ -163,6 +166,7 @@ public class MulticastClient implements JestClient {
                 Optional<AwsConfiguration> aws = Optional.ofNullable(configuration.getAws());
 
                 configuration.getServers().forEach((String url) -> {
+                  log.info("creating client for {}", url);
                   JestClientFactory clientFactory = aws
                     .map(awsConfig->{
                       StaticCredentialsProvider provider = new StaticCredentialsProvider(new BasicAWSCredentials(awsConfig.getAccessKey(), awsConfig.getSecretKey()));
