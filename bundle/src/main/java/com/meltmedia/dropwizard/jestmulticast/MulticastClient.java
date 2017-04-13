@@ -13,19 +13,46 @@ import io.searchbox.core.Delete;
 import io.searchbox.core.Index;
 import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
+import vc.inreach.aws.request.*;
+
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 
 /**
  * Created by qthibeault on 8/25/16.
  */
 
 public class MulticastClient implements JestClient {
+  
+  public static class StaticCredentialsProvider implements AWSCredentialsProvider {
+    public StaticCredentialsProvider( AWSCredentials credentials ) {
+      this.credentials = credentials;
+    }
+
+    private AWSCredentials credentials;
+
+    @Override
+    public AWSCredentials getCredentials() {
+      return credentials;
+    }
+
+    @Override
+    public void refresh() {}
+  }
 
     private List<JestClient> criticalClients;
     private List<JestClient> nonCriticalClients;
@@ -133,10 +160,31 @@ public class MulticastClient implements JestClient {
         public Builder withConfigurations(Collection<MulticastConfiguration> configurations) {
 
             configurations.forEach((MulticastConfiguration configuration) -> {
+                Optional<AwsConfiguration> aws = Optional.ofNullable(configuration.getAws());
 
                 configuration.getServers().forEach((String url) -> {
+                  JestClientFactory clientFactory = aws
+                    .map(awsConfig->{
+                      StaticCredentialsProvider provider = new StaticCredentialsProvider(new BasicAWSCredentials(awsConfig.getAccessKey(), awsConfig.getSecretKey()));
+                      String region = regionFromUrl(url);
+                      AWSSigner awsSigner = new AWSSigner(provider, region, "es", () -> LocalDateTime.now(ZoneOffset.UTC));
+                      AWSSigningRequestInterceptor requestInterceptor = new AWSSigningRequestInterceptor(awsSigner);
+                      return (JestClientFactory)new JestClientFactory() {
+                        @Override
+                        protected HttpClientBuilder configureHttpClient( HttpClientBuilder builder ) {
+                          return super.configureHttpClient(builder)
+                            .addInterceptorLast(requestInterceptor);
+                        }
 
-                    JestClientFactory clientFactory = new JestClientFactory();
+                        @Override
+                        protected HttpAsyncClientBuilder configureHttpClient( HttpAsyncClientBuilder builder ) {
+                          return super.configureHttpClient(builder)
+                            .addInterceptorLast(requestInterceptor);
+                        }
+                      };
+                      
+                    }).orElseGet(JestClientFactory::new);
+
                     HttpClientConfig clientConfig = new HttpClientConfig.Builder(url)
                             .connTimeout(configuration.getConnectionTimeout())
                             .readTimeout(configuration.getReadTimeout())
@@ -167,6 +215,14 @@ public class MulticastClient implements JestClient {
 
     public List<JestClient> getNonCriticalClients() {
         return this.nonCriticalClients;
+    }
+    
+    static String regionFromUrl(String url) {
+      String region = url.replaceFirst(".*\\.([^\\.]+)\\.es\\.amazonaws\\.com\\Z", "$1");
+      if( url.equals(region) ) {
+        throw new IllegalArgumentException("could not extract region from url "+url);
+      }
+      return region;
     }
 
 }

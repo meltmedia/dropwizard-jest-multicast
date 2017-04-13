@@ -4,6 +4,8 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.searchbox.client.JestClient;
 import io.searchbox.core.Index;
 import io.searchbox.core.Search;
+
+import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -18,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.*;
 
 /**
  * Created by qthibeault on 8/25/16.
@@ -135,6 +137,18 @@ public class MulticastClientTest {
     @Test(expected = UncheckedIOException.class)
     public void testCriticalFlag() throws IOException {
         this.client.execute(new Index.Builder(new Object()).build());
+    }
+    
+    @Test
+    public void shouldComputeRegionFromUrl() {
+      String region = MulticastClient.regionFromUrl("https://example-cluster.us-west-2.es.amazonaws.com");
+      assertThat(region, Matchers.equalTo("us-west-2"));
+    }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowIfNoRegion() {
+      String value = MulticastClient.regionFromUrl("https://example-cluster.us-west-2.es.elsewhere.com");
+      System.out.println(value);
     }
 
 }
