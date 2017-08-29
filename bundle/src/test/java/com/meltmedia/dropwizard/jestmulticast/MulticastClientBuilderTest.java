@@ -1,11 +1,16 @@
 package com.meltmedia.dropwizard.jestmulticast;
 
+import org.hamcrest.Matchers;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
+
+import com.google.common.collect.Lists;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.*;
 import static org.hamcrest.Matchers.*;
@@ -30,7 +35,8 @@ public class MulticastClientBuilderTest {
 
     @After
     public void shutdownClient() {
-        client.shutdownClient();
+        Optional.ofNullable(client)
+          .ifPresent(MulticastClient::shutdownClient);
     }
 
     @Test
@@ -53,7 +59,7 @@ public class MulticastClientBuilderTest {
                 .withConfigurations(clientConfigurations)
                 .build();
 
-        assertThat(client.getCriticalClients(), hasSize(2));
+        assertThat(client.getCriticalClients(), hasSize(1));
         assertThat(client.getNonCriticalClients(), is(empty()));
     }
 
@@ -68,7 +74,7 @@ public class MulticastClientBuilderTest {
                 .withConfigurations(clientConfigurations)
                 .build();
 
-        assertThat(client.getNonCriticalClients(), hasSize(2));
+        assertThat(client.getNonCriticalClients(), hasSize(1));
         assertThat(client.getCriticalClients(), is(empty()));
     }
 
@@ -86,8 +92,31 @@ public class MulticastClientBuilderTest {
                 .withConfigurations(clientConfigurations)
                 .build();
 
-        assertThat(client.getNonCriticalClients(), hasSize(2));
-        assertThat(client.getCriticalClients(), hasSize(2));
+        assertThat(client.getNonCriticalClients(), hasSize(1));
+        assertThat(client.getCriticalClients(), hasSize(1));
+    }
+    
+    @Test
+    public void bothAwsAndCredentialsThrowsException() {
+      List<MulticastConfiguration> configs = Lists.newArrayList(
+        new MulticastConfiguration()
+          .withClusterName("cluster1")
+          .withServers("http://localhost:9200", "http://localhost:9201")
+          .withAws(new AwsConfiguration())
+          .withCredentials(new Credentials())
+        );
+      
+      try {
+        client = new MulticastClient.Builder()
+          .withConfigurations(configs)
+          .build();
+        Assert.fail("client builder accepted.");
+      } catch( IllegalArgumentException e) {
+          assertThat(e.getMessage(), Matchers.containsString("cluster1"));
+      } catch( Throwable t ) {
+        Assert.fail("wrong exception thrown");
+      }
+        
     }
 
 }

@@ -19,6 +19,9 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toList;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.LocalDateTime;
@@ -26,6 +29,7 @@ import java.time.ZoneOffset;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -132,7 +136,7 @@ public class MulticastClient implements JestClient {
 
     @Override
     public void setServers(Set<String> set) {
-
+      throw new UnsupportedOperationException("Multicast clients cannot have their server list changed.");
     }
 
     public List<JestResult> checkHealth(Health health) throws IOException {
@@ -163,14 +167,18 @@ public class MulticastClient implements JestClient {
         public Builder withConfigurations(Collection<MulticastConfiguration> configurations) {
 
             configurations.forEach((MulticastConfiguration configuration) -> {
+                Optional<Credentials> credentials = Optional.ofNullable(configuration.getCredentials());
                 Optional<AwsConfiguration> aws = Optional.ofNullable(configuration.getAws());
-
-                configuration.getServers().forEach((String url) -> {
-                  log.info("creating client for {}", url);
+                
+                if( credentials.isPresent() && aws.isPresent() ) {
+                  throw new IllegalArgumentException(configuration.getClusterName()+" has both aws credentials and basic credentials defined.");
+                }
+                
+                  log.info("creating client for {}", configuration.getClusterName());
                   JestClientFactory clientFactory = aws
                     .map(awsConfig->{
                       StaticCredentialsProvider provider = new StaticCredentialsProvider(new BasicAWSCredentials(awsConfig.getAccessKey(), awsConfig.getSecretKey()));
-                      String region = regionFromUrl(url);
+                      String region = regionFromConfiguration(configuration);
                       AWSSigner awsSigner = new AWSSigner(provider, region, "es", () -> LocalDateTime.now(ZoneOffset.UTC));
                       AWSSigningRequestInterceptor requestInterceptor = new AWSSigningRequestInterceptor(awsSigner);
                       return (JestClientFactory)new JestClientFactory() {
@@ -189,13 +197,18 @@ public class MulticastClient implements JestClient {
                       
                     }).orElseGet(JestClientFactory::new);
 
-                    HttpClientConfig clientConfig = new HttpClientConfig.Builder(url)
+                    HttpClientConfig.Builder clientConfigBuilder = new HttpClientConfig.Builder(configuration.getServers())
                             .connTimeout(configuration.getConnectionTimeout())
                             .readTimeout(configuration.getReadTimeout())
                             .maxTotalConnection(configuration.getMaxTotalConnections())
                             .defaultMaxTotalConnectionPerRoute(configuration.getMaxTotalConnectionsPerRoute())
-                            .multiThreaded(true)
-                            .build();
+                            .multiThreaded(true);
+                    
+                      credentials.ifPresent(c->{
+                        clientConfigBuilder.defaultCredentials(c.getUsername(), c.getPassword());
+                      });
+
+                      HttpClientConfig clientConfig = clientConfigBuilder.build();
 
                     clientFactory.setHttpClientConfig(clientConfig);
 
@@ -207,7 +220,6 @@ public class MulticastClient implements JestClient {
                     }
 
                 });
-            });
 
             return this;
         }
@@ -228,5 +240,25 @@ public class MulticastClient implements JestClient {
       }
       return region;
     }
-
+    
+    static String regionFromConfiguration( MulticastConfiguration configuration ) {
+      return configuration.getServers()
+      .stream()
+      .map(MulticastClient::regionFromUrl)
+      .distinct()
+      .collect(
+        collectingAndThen(
+          toList(),
+          regions->{
+            if( regions.isEmpty() ) {
+              throw new IllegalStateException(configuration.getClusterName()+" could not identify a region.");
+            }
+            else if( regions.size() > 1 ) {
+              throw new IllegalStateException(configuration.getClusterName()+" services mapped to multiple regions");
+            }
+            else {
+              return regions.get(1);
+            }
+          }));
+    }
 }

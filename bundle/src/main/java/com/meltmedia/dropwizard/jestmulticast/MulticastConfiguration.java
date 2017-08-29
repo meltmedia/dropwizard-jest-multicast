@@ -19,6 +19,7 @@ public class MulticastConfiguration {
     private Integer maxTotalConnectionsPerRoute = 1;
     private Boolean critical = false;
     private AwsConfiguration aws;
+    private Credentials credentials;
 
     public String getClusterName() {
         return clusterName;
@@ -122,5 +123,23 @@ public class MulticastConfiguration {
 
     public void setAws( AwsConfiguration awsConfiguration ) {
       this.aws = awsConfiguration;
+    }
+    
+    public MulticastConfiguration withAws( AwsConfiguration awsConfiguration ) {
+      setAws(awsConfiguration);
+      return this;
+    }
+
+    public Credentials getCredentials() {
+      return credentials;
+    }
+
+    public void setCredentials( Credentials credentials ) {
+      this.credentials = credentials;
+    }
+    
+    public MulticastConfiguration withCredentials( Credentials credentials ) {
+      this.setCredentials(credentials);
+      return this;
     }
 }

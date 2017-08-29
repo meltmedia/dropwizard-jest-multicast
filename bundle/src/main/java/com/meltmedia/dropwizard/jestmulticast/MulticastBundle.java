@@ -1,13 +1,12 @@
 package com.meltmedia.dropwizard.jestmulticast;
 
+import java.util.Collection;
+import java.util.function.Supplier;
+
 import io.dropwizard.Configuration;
 import io.dropwizard.ConfiguredBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import io.searchbox.client.JestClient;
-
-import java.util.Collection;
-import java.util.function.Supplier;
 
 /**
  * Created by qthibeault on 8/25/16.
