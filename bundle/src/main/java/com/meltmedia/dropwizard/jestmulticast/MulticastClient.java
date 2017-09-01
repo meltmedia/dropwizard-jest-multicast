@@ -241,10 +241,18 @@ public class MulticastClient implements JestClient {
       return region;
     }
     
+    static Stream<String> regionStreamFromUrl(String url) {
+      try {
+        return Stream.of(MulticastClient.regionFromUrl(url));
+      } catch( Exception e ) {
+        return Stream.empty();
+      }
+    }
+    
     static String regionFromConfiguration( MulticastConfiguration configuration ) {
       return configuration.getServers()
       .stream()
-      .map(MulticastClient::regionFromUrl)
+      .flatMap(MulticastClient::regionStreamFromUrl)
       .distinct()
       .collect(
         collectingAndThen(
@@ -257,7 +265,7 @@ public class MulticastClient implements JestClient {
               throw new IllegalStateException(configuration.getClusterName()+" services mapped to multiple regions");
             }
             else {
-              return regions.get(1);
+              return regions.get(0);
             }
           }));
     }
