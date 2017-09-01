@@ -8,7 +8,7 @@
 
     <groupId>com.meltmedia.dropwizard</groupId>
     <artifactId>dropwizard-jest-multicast-parent</artifactId>
-    <version>1.2.1</version>
+    <version>1.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Dropwizard Jest Multicast Parent</name>
@@ -27,7 +27,7 @@
         <connection>scm:git:git://github.com/meltmedia/dropwizard-jest-multicast.git</connection>
         <developerConnection>scm:git:git@github.com:meltmedia/dropwizard-jest-multicast.git</developerConnection>
         <url>https://github.com/meltmedia/dropwizard-jest-multicast</url>
-        <tag>v1.2.1</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <modules>
